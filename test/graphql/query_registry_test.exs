@@ -127,6 +127,15 @@ defmodule GraphQL.QueryRegistryTest do
       assert_received :first_resolver
       assert_received :second_resolver
     end
+
+    test "does nothing when the registry is empty" do
+      registry = QueryRegistry.new("Test")
+      acc = %{a: 1}
+
+      result = QueryRegistry.execute(registry, acc)
+
+      assert result == acc
+    end
   end
 
   describe "new/1" do

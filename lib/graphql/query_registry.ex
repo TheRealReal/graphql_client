@@ -85,22 +85,32 @@ defmodule GraphQL.QueryRegistry do
   """
   @spec execute(t(), any(), Keyword.t()) :: any()
   def execute(registry, acc, options \\ []) do
-    {query, variables, resolvers} = prepare_query(registry)
+    case prepare_query(registry) do
+      {:ok, {query, variables, resolvers}} ->
+        query
+        |> Client.execute(variables, options)
+        |> resolve(resolvers, acc)
 
-    query
-    |> Client.execute(variables, options)
-    |> resolve(resolvers, acc)
+      _error ->
+        acc
+    end
   end
 
   defp prepare_query(%__MODULE__{} = registry) do
-    query = Query.merge_many(registry.queries, registry.name)
+    case registry.queries do
+      [_head | _tail] ->
+        query = Query.merge_many(registry.queries, registry.name)
 
-    variables =
-      if registry.variables == [],
-        do: %{},
-        else: Enum.reduce(registry.variables, &Map.merge/2)
+        variables =
+          if registry.variables == [],
+            do: %{},
+            else: Enum.reduce(registry.variables, &Map.merge/2)
 
-    {query, variables, registry.resolvers}
+        {:ok, {query, variables, registry.resolvers}}
+
+      _empty ->
+        {:error, "no queries available"}
+    end
   end
 
   defp resolve(response, resolvers, initial_acc) do
