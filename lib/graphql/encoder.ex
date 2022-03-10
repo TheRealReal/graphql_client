@@ -160,8 +160,19 @@ defmodule GraphQL.Encoder do
         |> Enum.map(&encode_value/1)
         |> Enum.join()
 
+      is_map(v) ->
+        parsed_v =
+          v
+          |> Enum.map(&encode_argument/1)
+          |> Enum.join(", ")
+
+        Enum.join(["{", parsed_v, "}"])
+
       true ->
-        "#{v}"
+        case v do
+          {:enum, v} -> v
+          v -> "#{v}"
+        end
     end
   end
 

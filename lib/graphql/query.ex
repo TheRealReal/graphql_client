@@ -153,7 +153,13 @@ defmodule GraphQL.Query do
   @spec merge_many([t()], String.t()) :: t()
   def merge_many(queries, name \\ nil)
 
-  def merge_many([%__MODULE__{} = query], _name), do: query
+  def merge_many([%__MODULE__{} = query], name) do
+    if name != nil do
+      %__MODULE__{query | name: name}
+    else
+      query
+    end
+  end
 
   def merge_many([first_query | remaining_queries], name) do
     Enum.reduce(remaining_queries, first_query, fn query, result ->

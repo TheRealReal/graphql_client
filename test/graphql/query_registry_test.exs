@@ -56,7 +56,7 @@ defmodule GraphQL.QueryRegistryTest do
 
       result = execute(registry, %{result: "success"})
 
-      assert result == %{result: "success", resolver_result: true}
+      assert result == {:ok, %{result: "success", resolver_result: true}}
     end
   end
 
@@ -123,18 +123,18 @@ defmodule GraphQL.QueryRegistryTest do
 
       result = QueryRegistry.execute(registry, [])
 
-      assert result == [:second_resolver, :first_resolver]
+      assert result == {:ok, [:second_resolver, :first_resolver]}
       assert_received :first_resolver
       assert_received :second_resolver
     end
 
-    test "does nothing when the registry is empty" do
+    test "returns an error tuple when registry is empty" do
       registry = QueryRegistry.new("Test")
       acc = %{a: 1}
 
       result = QueryRegistry.execute(registry, acc)
 
-      assert result == acc
+      assert result == {:error, "no queries available"}
     end
   end
 

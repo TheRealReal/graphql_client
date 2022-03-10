@@ -160,7 +160,7 @@ registry = QueryRegistry.new("BigQuery")
 result = 
   registry
   |> QueryRegistry.add_query(user_query, user_variables,[user_resolver])
-  |> QueryRegistry. add_query(product_query, product_variables)
+  |> QueryRegistry.add_query(product_query, product_variables)
   |> QueryRegistry.execute(%{}, options)
 
 ```

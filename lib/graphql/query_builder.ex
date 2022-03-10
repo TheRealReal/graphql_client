@@ -140,6 +140,11 @@ defmodule GraphQL.QueryBuilder do
     %Variable{name: name, type: type, default_value: value}
   end
 
+  @spec enum(String.t()) :: {:enum, String.t()}
+  def enum(name) do
+    {:enum, name}
+  end
+
   @doc """
   Creates a reference to a fragment. Use it inside a field.
 

@@ -87,12 +87,15 @@ defmodule GraphQL.QueryRegistry do
   def execute(registry, acc, options \\ []) do
     case prepare_query(registry) do
       {:ok, {query, variables, resolvers}} ->
-        query
-        |> Client.execute(variables, options)
-        |> resolve(resolvers, acc)
+        result =
+          query
+          |> Client.execute(variables, options)
+          |> resolve(resolvers, acc)
 
-      _error ->
-        acc
+        {:ok, result}
+
+      error ->
+        error
     end
   end
 
