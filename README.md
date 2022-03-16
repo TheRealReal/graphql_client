@@ -59,7 +59,7 @@ Can be built using the following snippet:
 ```elixir
 import GraphQL.QueryBuilder
 
-user_query = query("User", %{slug: {"String!"}, "*"}, [
+user_query = query("User", %{slug: {"String!", "*"}}, [
   field(:user, %{slug: :"$slug"}, [
     field(:id),
     field(:email)
