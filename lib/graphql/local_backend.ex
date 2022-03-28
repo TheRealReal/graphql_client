@@ -27,7 +27,7 @@ defmodule GraphQL.LocalBackend do
     response = Agent.get_and_update(__MODULE__, fn state -> {state, nil} end)
 
     case response do
-      %Response{} = response -> {:ok, response}
+      %Response{} = response -> response
       f when is_function(f, 3) -> f.(query, variables, options)
       nil -> raise "there is no response"
     end
