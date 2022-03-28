@@ -1,5 +1,10 @@
 # Changelog for `graphql_client`
 
+## v0.1.2
+
+### Bugfixes
+  - Fix the return value of `GraphQL.LocalBackend.execute_query/2`
+
 ## v0.1.1
 
 ### New Features
