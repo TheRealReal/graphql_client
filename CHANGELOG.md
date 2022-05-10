@@ -1,5 +1,14 @@
 # Changelog for `graphql_client`
 
+## v0.2.0
+
+### Changes
+  - `GraphQL.Query.merge/3` and `GraphQL.Query.merge_many/2` now return ok/error tuples instead of structs - the new
+    check for duplicated variables may now invalidate a merge and return an error.
+
+### Bugfixes
+  - Do not allow variables to be added twice, even when declared with different key types
+
 ## v0.1.2
 
 ### Bugfixes
