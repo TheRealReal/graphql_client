@@ -130,19 +130,49 @@ defmodule GraphQL.Query do
 
   The two queries must have the same operation.
   """
-  @spec merge(t(), t(), String.t()) :: t()
+  @spec merge(t(), t(), String.t()) :: {:ok, t()} | {:error, any()}
   def merge(
         %__MODULE__{operation: operation} = query_a,
         %__MODULE__{operation: operation} = query_b,
         name
       ) do
-    %__MODULE__{
-      name: name,
-      operation: operation,
-      fields: (query_a.fields || []) ++ (query_b.fields || []),
-      fragments: (query_a.fragments || []) ++ (query_b.fragments || []),
-      variables: (query_a.variables || []) ++ (query_b.variables || [])
-    }
+    with {:ok, variables} <- merge_variables(query_a.variables || [], query_b.variables || []) do
+      {:ok,
+       %__MODULE__{
+         name: name,
+         operation: operation,
+         fields: (query_a.fields || []) ++ (query_b.fields || []),
+         fragments: (query_a.fragments || []) ++ (query_b.fragments || []),
+         variables: variables
+       }}
+    else
+      error -> error
+    end
+  end
+
+  defp merge_variables(set_a, set_b) do
+    repeated_vars =
+      for v_a <- set_a, v_b <- set_b, reduce: [] do
+        acc ->
+          if GraphQL.Variable.same?(v_a, v_b) do
+            [v_a | acc]
+          else
+            acc
+          end
+      end
+
+    case repeated_vars do
+      [] ->
+        {:ok, set_a ++ set_b}
+
+      _ ->
+        var_names =
+          repeated_vars
+          |> Enum.map(&"\"#{&1.name}\"")
+          |> Enum.join(", ")
+
+        {:error, "variables declared twice: #{var_names}"}
+    end
   end
 
   @doc """
@@ -150,20 +180,32 @@ defmodule GraphQL.Query do
 
   All queries must have the same operation.
   """
-  @spec merge_many([t()], String.t()) :: t()
+  @spec merge_many([t()], String.t()) :: {:ok, t()} | {:error, any()}
   def merge_many(queries, name \\ nil)
 
   def merge_many([%__MODULE__{} = query], name) do
     if name != nil do
-      %__MODULE__{query | name: name}
+      {:ok, %__MODULE__{query | name: name}}
     else
-      query
+      {:ok, query}
     end
   end
 
   def merge_many([first_query | remaining_queries], name) do
-    Enum.reduce(remaining_queries, first_query, fn query, result ->
-      merge(query, result, name)
-    end)
+    result =
+      Enum.reduce_while(remaining_queries, first_query, fn query, result ->
+        case merge(query, result, name) do
+          {:ok, merged_query} ->
+            {:cont, merged_query}
+
+          {:error, error} ->
+            {:halt, {:error, error}}
+        end
+      end)
+
+    case result do
+      %__MODULE__{} = query -> {:ok, query}
+      error -> error
+    end
   end
 end

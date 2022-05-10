@@ -7,6 +7,10 @@ defmodule GraphQL.QueryTest do
 
   doctest Query, import: true
 
+  @some_query query("SomeQuery", %{userId: "Integer"}, [
+                field("recommendation", %{"userId" => :"$userId"})
+              ])
+
   @user_query query(
                 "UserQuery",
                 %{"userId" => "Integer"},
@@ -108,23 +112,33 @@ defmodule GraphQL.QueryTest do
 
   describe "merge/3" do
     test "merges two queries" do
-      result = Query.merge(@user_query, @product_query, "ProductAndUser")
+      {:ok, result} = Query.merge(@user_query, @product_query, "ProductAndUser")
 
       assert @merged_queries == result
+    end
+
+    test "returns an error if two queries declare the same variable" do
+      {:error, message} = Query.merge(@user_query, @some_query, "AQuery")
+      assert message == "variables declared twice: \"userId\""
     end
   end
 
   describe "merge_many/2" do
     test "merges a list of queries" do
-      result = Query.merge_many([@product_query, @user_query], "ProductAndUser")
+      {:ok, result} = Query.merge_many([@product_query, @user_query], "ProductAndUser")
 
       assert @merged_queries == result
     end
 
     test "returns a query if it is the only element on the list" do
-      result = Query.merge_many([@product_query])
+      {:ok, result} = Query.merge_many([@product_query])
 
       assert result == @product_query
+    end
+
+    test "returns an error if two queries declare the same variable twice" do
+      {:error, message} = Query.merge_many([@user_query, @some_query], "AQuery")
+      assert message == "variables declared twice: \"userId\""
     end
   end
 end

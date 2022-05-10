@@ -16,6 +16,13 @@ defmodule GraphQL.QueryRegistryTest do
                      ])
                    ])
 
+  @villain_query query("VilainQuery", %{"power" => "String"}, [
+                   field(:villain, %{power: :"$power"}, [
+                     field(:id),
+                     field(:name)
+                   ])
+                 ])
+
   @dog_query query("DogQuery", %{breed: "String"}, [
                field(:dogs, %{}, [
                  field(:id),
@@ -57,6 +64,26 @@ defmodule GraphQL.QueryRegistryTest do
       result = execute(registry, %{result: "success"})
 
       assert result == {:ok, %{result: "success", resolver_result: true}}
+    end
+
+    test "returns an error if the same variable is added twice" do
+      import QueryRegistry
+
+      registry = QueryRegistry.new("Test")
+
+      registry =
+        registry
+        |> add_query(@character_query, %{power: "flight"})
+        |> add_query(@villain_query, %{power: "invisibility"})
+        |> add_resolver(fn _response, acc ->
+          Map.put(acc, :resolver_result, true)
+        end)
+
+      expect(Response.success(nil))
+
+      result = execute(registry, %{result: "ok"})
+
+      assert result == {:error, "variables declared twice: \"power\""}
     end
   end
 

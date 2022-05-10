@@ -101,19 +101,25 @@ defmodule GraphQL.QueryRegistry do
 
   defp prepare_query(%__MODULE__{} = registry) do
     case registry.queries do
-      [_head | _tail] ->
-        query = Query.merge_many(registry.queries, registry.name)
-
-        variables =
-          if registry.variables == [],
-            do: %{},
-            else: Enum.reduce(registry.variables, &Map.merge/2)
-
-        {:ok, {query, variables, registry.resolvers}}
-
-      _empty ->
+      [] ->
         {:error, "no queries available"}
+
+      _not_empty ->
+        case Query.merge_many(registry.queries, registry.name) do
+          {:ok, query} ->
+            variables = merge_variables(registry.variables)
+            {:ok, {query, variables, registry.resolvers}}
+
+          error ->
+            error
+        end
     end
+  end
+
+  defp merge_variables([]), do: %{}
+
+  defp merge_variables(variables) do
+    Enum.reduce(variables, &Map.merge/2)
   end
 
   defp resolve(response, resolvers, initial_acc) do

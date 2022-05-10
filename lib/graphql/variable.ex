@@ -20,4 +20,18 @@ defmodule GraphQL.Variable do
           type: name(),
           default_value: any()
         }
+
+  @doc """
+  Check if two variables represent the same variable
+  """
+  @spec same?(t(), t()) :: boolean()
+  def same?(%__MODULE__{} = a, %__MODULE__{} = b) do
+    name_a = term_as_string(a.name)
+    name_b = term_as_string(b.name)
+
+    name_a == name_b
+  end
+
+  defp term_as_string(term) when is_atom(term), do: Atom.to_string(term)
+  defp term_as_string(term) when is_binary(term), do: term
 end
