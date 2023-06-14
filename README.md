@@ -47,10 +47,11 @@ To build queries, you can `import` all functions from `GraphQL.QueryBuilder`.
 A simple query, like this one:
 
 ```graphql
-query User($slug: String! = "*"){
-  user(slug: $slug){
+query User($slug: String! = "*") {
+  user(slug: $slug) {
     id
     email
+  }
 }
 ```
 
@@ -113,7 +114,6 @@ Now, the `user_query` variable contains a _representation_ of this GraphQL opera
 
 But most of the time you'll not need to handle this directly.
 
-
 ### Executing queries
 
 To execute this query, you can now call the `GraphQL.Client` and use this query directly:
@@ -125,7 +125,6 @@ GraphQL.Client.execute(user_query, %{slug: "some-user"})
 From the POV of the code that it's calling, it doesn't know if this client is using HTTP, smoke signals or magic.
 
 All you know is that this function will always return a `%GraphQL.Response{}` struct.
-
 
 To get the actual text body, you can use `GraphQL.Encoder.encode/1` function:
 
@@ -157,7 +156,7 @@ end
 
 registry = QueryRegistry.new("BigQuery")
 
-result = 
+result =
   registry
   |> QueryRegistry.add_query(user_query, user_variables,[user_resolver])
   |> QueryRegistry.add_query(product_query, product_variables)
@@ -208,7 +207,7 @@ end
 
 ## Code of Conduct
 
-This project  Contributor Covenant version 2.1. Check [CODE_OF_CONDUCT.md](/CODE_OF_CONDUCT.md) file for more information.
+This project uses Contributor Covenant version 2.1. Check [CODE_OF_CONDUCT.md](/CODE_OF_CONDUCT.md) file for more information.
 
 ## License
 
