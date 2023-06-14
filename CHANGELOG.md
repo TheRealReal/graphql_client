@@ -1,5 +1,11 @@
 # Changelog for `graphql_client`
 
+## v0.2.1
+
+### Changes
+
+- Minor documentation fixes
+
 ## v0.2.0
 
 ### Changes
