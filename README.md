@@ -157,7 +157,7 @@ end
 
 registry = QueryRegistry.new("BigQuery")
 
-result = 
+result =
   registry
   |> QueryRegistry.add_query(user_query, user_variables,[user_resolver])
   |> QueryRegistry.add_query(product_query, product_variables)
@@ -208,7 +208,7 @@ end
 
 ## Code of Conduct
 
-This project  Contributor Covenant version 2.1. Check [CODE_OF_CONDUCT.md](/CODE_OF_CONDUCT.md) file for more information.
+This project uses Contributor Covenant version 2.1. Check [CODE_OF_CONDUCT.md](/CODE_OF_CONDUCT.md) file for more information.
 
 ## License
 
