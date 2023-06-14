@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Minor documentation fixes
+  - Minor documentation fixes
 
 ## v0.2.0
 
